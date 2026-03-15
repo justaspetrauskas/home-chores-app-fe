@@ -1,86 +1,108 @@
-import React, { useState } from 'react'
-import img from '../assets/cleaning_logo.png'
+import React, { useMemo } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import useAuth from '../hooks/useAuth'
+import { useLoginMutation } from '../hooks/useLoginMutation'
+import { useSignupMutation } from '../hooks/useSignupMutation'
 import Card from '../components/ui/Card'
+import CardDescription from '../components/ui/CardDescription'
 import CardHeader from '../components/ui/CardHeader'
 import CardTitle from '../components/ui/CardTitle'
-import CardDescription from '../components/ui/CardDescription'
-import { Tabs } from '../components/ui/Tabs'
-
-
+import IconListChecks from '../components/ui/IconListChecks'
+import LoginForm from '../components/auth/LoginForm'
+import SignupForm from '../components/auth/SignupForm'
 
 const Auth: React.FC = () => {
-  
+  const { login, register } = useAuth()
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const loginMutation = useLoginMutation()
+  const signupMutation = useSignupMutation()
+
+  const isLogin = useMemo(() => location.pathname !== '/register', [location.pathname])
+
+  const toggleMode = () => {
+    navigate(isLogin ? '/register' : '/login')
+  }
+
+  const handleLogin = async (payload: { email: string; password: string }) => {
+    if (!payload.email || !payload.password) return
+    try {
+      await loginMutation.mutateAsync(payload)
+      login()
+      navigate('/dashboard')
+    } catch {
+      // Error shown via loginMutation.error
+    }
+  }
+
+  const handleSignup = async (payload: { name: string; email: string; password: string }) => {
+    if (!payload.name || !payload.email || !payload.password) return
+
+    try {
+      await signupMutation.mutateAsync(payload)
+      register()
+      navigate('/dashboard')
+    } catch {
+      // Error message is shown via signupMutation.error
+    }
+  }
+
   return (
-    <div className="flex flex-col min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <img
-            alt="Your Company"
-            src={img}
-            className="mx-auto h-64 w-auto"
-          />
-        </div>
-        
-
-        <Card>
-            <CardTitle>Welcome</CardTitle>
-            <CardDescription>Login or create a new account to get started</CardDescription>
-            <CardDescription>
-                <Tabs>test</Tabs>
-          <form action="#" method="POST" className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
-                Email address
-              </label>
-              <div className="mt-2">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                />
-              </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cyan-50 via-blue-50 to-teal-50 p-4">
+      <Card className="w-full max-w-md shadow-xl border border-cyan-100">
+        <CardHeader className="space-y-1 text-center pb-6 mb-0">
+          <div className="flex items-center justify-center mb-4">
+            <div className="bg-gradient-to-br from-cyan-500 to-teal-500 p-3 rounded-2xl shadow-lg">
+              <IconListChecks className="size-8 text-white" />
             </div>
-
-            <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">
-                  Password
-                </label>
-                <div className="text-sm">
-                  <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
-                    Forgot password?
-                  </a>
-                </div>
-              </div>
-              <div className="mt-2">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  autoComplete="current-password"
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                />
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
-                Sign in
-              </button>
-            </div>
-          </form>
+          </div>
+          <CardTitle className="text-3xl bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">
+            ChoreHub
+          </CardTitle>
+          <CardDescription className="text-base">
+            {isLogin ? 'Sign in to manage your cleaning events' : 'Create an account to get started'}
           </CardDescription>
-        </Card>
+        </CardHeader>
 
+        <div className="px-6 pb-4">
+          <div className="flex items-center justify-center gap-2 p-1 bg-gray-100 rounded-lg">
+            <button
+              type="button"
+              onClick={() => !isLogin && toggleMode()}
+              className={`flex-1 py-2 px-4 rounded-md transition-all ${
+                isLogin ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-900'
+              }`}
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => isLogin && toggleMode()}
+              className={`flex-1 py-2 px-4 rounded-md transition-all ${
+                !isLogin ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-900'
+              }`}
+            >
+              Sign Up
+            </button>
+          </div>
+        </div>
 
+        {isLogin ? (
+          <LoginForm
+            isLoading={loginMutation.isPending}
+            errorMessage={loginMutation.isError ? (loginMutation.error instanceof Error ? loginMutation.error.message : 'Login failed') : undefined}
+            onSubmit={handleLogin}
+          />
+        ) : (
+          <SignupForm
+            isLoading={signupMutation.isPending}
+            errorMessage={signupMutation.isError ? (signupMutation.error instanceof Error ? signupMutation.error.message : 'Unable to create account') : undefined}
+            onSubmit={handleSignup}
+          />
+        )}
+      </Card>
     </div>
-
   )
 }
 
