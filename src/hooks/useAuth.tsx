@@ -14,6 +14,9 @@ export function useAuth() {
         username: me.name ?? me.username ?? me.email ?? '',
         id: me.id,
         email: me.email,
+        defaultHousehold: me.defaultHousehold ?? null,
+        memberships: me.memberships ?? [],
+        cleaningEvents: me.cleaningEvents ?? [],
       }
     : null
 

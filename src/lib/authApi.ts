@@ -1,8 +1,8 @@
 import axios from 'axios'
 import { apiClient } from './apiClient'
-import type { LoginPayload, LoginResponse, SignupPayload, SignupResponse, LogoutResponse, MeResponse } from '../types/auth'
+import type { LoginPayload, LoginResponse, SignupPayload, SignupResponse, LogoutResponse, MeEnvelopeResponse, MeResponse } from '../types/auth'
 
-export type { LoginPayload, LoginResponse, SignupPayload, SignupResponse, LogoutResponse, MeResponse }
+export type { LoginPayload, LoginResponse, SignupPayload, SignupResponse, LogoutResponse, MeEnvelopeResponse, MeResponse }
 
 export async function loginRequest(payload: LoginPayload): Promise<LoginResponse> {
   try {
@@ -18,8 +18,16 @@ export async function loginRequest(payload: LoginPayload): Promise<LoginResponse
 }
 
 export async function meRequest(): Promise<MeResponse> {
-  const { data } = await apiClient.get<MeResponse>('/users/me')
-  return data
+  try {
+    const { data } = await apiClient.get<MeEnvelopeResponse>('/users/me')
+    return data.data?.user ?? {}
+  } catch (error) {
+    if (axios.isAxiosError<{ error?: string; message?: string }>(error)) {
+      const apiMessage = error.response?.data?.error || error.response?.data?.message
+      throw new Error(apiMessage || 'Failed to load current user')
+    }
+    throw new Error('Failed to load current user')
+  }
 }
 
 export async function signupRequest(payload: SignupPayload): Promise<SignupResponse> {

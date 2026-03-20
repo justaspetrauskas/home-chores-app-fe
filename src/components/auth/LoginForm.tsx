@@ -42,7 +42,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ isLoading, errorMessage, onSubmit
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="password">Password</Label>
-            <Link to="/forgot-password" className="text-sm text-cyan-600 hover:text-cyan-700 hover:underline">
+            <Link to="/forgot-password" className="text-xs font-semibold uppercase tracking-wide text-amber-600 hover:text-amber-700">
               Forgot password?
             </Link>
           </div>
@@ -56,7 +56,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ isLoading, errorMessage, onSubmit
             className="h-11"
           />
         </div>
-        <Button type="submit" className="w-full h-11 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600" disabled={isLoading}>
+        <Button type="submit" variant="primary" className="w-full h-11" disabled={isLoading}>
           {isLoading ? 'Signing in...' : 'Sign in'}
         </Button>
         {errorMessage && (
