@@ -58,8 +58,8 @@ const HouseholdDetails: React.FC = () => {
 
       <div className="grid gap-4 md:grid-cols-3">
         <HouseholdMembersCard members={members} formatMembershipRole={formatMembershipRole} />
-        <HouseholdRoomsCard rooms={rooms} onCreateRoom={() => navigate(`/households/${household.id}/manage-rooms`)} />
-        <HouseholdEventsCard events={events} />
+        <HouseholdRoomsCard rooms={rooms} onManageRooms={() => navigate(`/households/${household.id}/manage-rooms`)} />
+        <HouseholdEventsCard events={events} onManageEvents={() => navigate(`/households/${household.id}/manage-events`)} />
       </div>
     </div>
   )

@@ -50,6 +50,9 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             <NavLink to="/dashboard" className={navLinkClassName}>
               Dashboard
             </NavLink>
+            <NavLink to="/events" className={navLinkClassName}>
+              Events
+            </NavLink>
             <NavLink to="/households" className={navLinkClassName}>
               Households
             </NavLink>

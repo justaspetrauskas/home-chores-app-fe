@@ -8,23 +8,27 @@ import CardTitle from '../../ui/CardTitle'
 
 type HouseholdRoomsCardProps = {
   rooms: HouseholdRoom[]
-  onCreateRoom: () => void
+  onManageRooms: () => void
 }
 
-const HouseholdRoomsCard: React.FC<HouseholdRoomsCardProps> = ({ rooms, onCreateRoom }) => {
+const HouseholdRoomsCard: React.FC<HouseholdRoomsCardProps> = ({ rooms, onManageRooms }) => {
   return (
     <Card>
       <CardHeader className="mb-0 pb-2">
-        <CardTitle className="text-lg">Rooms ({rooms.length})</CardTitle>
-        <CardDescription>Spaces to organize chores</CardDescription>
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <CardTitle className="text-lg">Rooms ({rooms.length})</CardTitle>
+            <CardDescription>Spaces to organize chores</CardDescription>
+          </div>
+          <Button type="button" size="sm" variant="secondary" onClick={onManageRooms}>
+            Manage rooms
+          </Button>
+        </div>
       </CardHeader>
 
       {rooms.length === 0 ? (
         <div className="mt-3 rounded-lg border border-dashed border-stone-300 bg-stone-50 p-4 dark:border-stone-600 dark:bg-stone-700/30">
           <p className="text-sm text-stone-500 dark:text-stone-400">No rooms yet.</p>
-          <Button type="button" size="sm" className="mt-3" onClick={onCreateRoom}>
-            Create room
-          </Button>
         </div>
       ) : (
         <ul className="mt-3 space-y-2">

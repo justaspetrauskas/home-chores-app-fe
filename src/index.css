@@ -1,4 +1,15 @@
 @import "tailwindcss";
+@source "../node_modules/react-tailwindcss-datepicker/dist/index.esm.js";
+
+/* react-tailwindcss-datepicker uses opacity-1 to mean fully opaque,
+   which conflicts with Tailwind v4's scale where opacity-1 = 0.01.
+   Override it here so the calendar panel is visible when open. */
+@layer utilities {
+  .opacity-1 {
+    opacity: 1;
+  }
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 @custom-variant dark (&:where(.dark, .dark *));

@@ -8,22 +8,27 @@ import CardTitle from '../../ui/CardTitle'
 
 type HouseholdEventsCardProps = {
   events: HouseholdEvent[]
+  onManageEvents: () => void
 }
 
-const HouseholdEventsCard: React.FC<HouseholdEventsCardProps> = ({ events }) => {
+const HouseholdEventsCard: React.FC<HouseholdEventsCardProps> = ({ events, onManageEvents }) => {
   return (
     <Card>
       <CardHeader className="mb-0 pb-2">
-        <CardTitle className="text-lg">Events ({events.length})</CardTitle>
-        <CardDescription>Cleaning events in this household</CardDescription>
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <CardTitle className="text-lg">Events ({events.length})</CardTitle>
+            <CardDescription>Cleaning events in this household</CardDescription>
+          </div>
+          <Button type="button" size="sm" variant="secondary" onClick={onManageEvents}>
+            Manage events
+          </Button>
+        </div>
       </CardHeader>
 
       {events.length === 0 ? (
         <div className="mt-3 rounded-lg border border-dashed border-stone-300 bg-stone-50 p-4 dark:border-stone-600 dark:bg-stone-700/30">
           <p className="text-sm text-stone-500 dark:text-stone-400">No events yet.</p>
-          <Button type="button" size="sm" className="mt-3" onClick={() => {}}>
-            Create event
-          </Button>
         </div>
       ) : (
         <ul className="mt-3 space-y-2">

@@ -6,7 +6,6 @@ import AuthenticatedLayout from '../components/layout/AuthenticatedLayout'
 import DashboardOverview from '../components/dashboard/DashboardOverview'
 import EmptyStateCard from '../components/dashboard/EmptyStateCard'
 import ToastMessage from '../components/ui/ToastMessage'
-import { useSetDefaultHouseholdMutation } from '../hooks/useSetDefaultHouseholdMutation'
 import { useSelectedHouseholdStorage } from '../hooks/useSelectedHouseholdStorage'
 
 function formatMembershipRole(role?: string) {
@@ -21,22 +20,11 @@ const Dashboard: React.FC = () => {
   const { user, logout } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
-  const setDefaultMutation = useSetDefaultHouseholdMutation()
   const { value: selectedHouseholdFromStorage, setValue: setSelectedHouseholdInStorage } = useSelectedHouseholdStorage()
   const initialWelcomeState = useMemo(() => {
     return Boolean((location.state as { showWelcomeBack?: boolean } | null)?.showWelcomeBack)
   }, [location.state])
   const [showWelcomeToast, setShowWelcomeToast] = useState(initialWelcomeState)
-  const [switchToast, setSwitchToast] = useState<{
-    open: boolean
-    title: string
-    description?: string
-    variant: 'success' | 'info' | 'error'
-  }>({
-    open: false,
-    title: '',
-    variant: 'success',
-  })
   const memberships = user?.memberships ?? []
   const cleaningEvents = user?.cleaningEvents ?? []
   const hasMemberships = memberships.length > 0
@@ -72,27 +60,7 @@ const Dashboard: React.FC = () => {
   const handleSelectHousehold = (householdId: string) => {
     if (!householdId || householdId === selectedHouseholdId) return
     setSelectedHouseholdInStorage(householdId)
-
-    const selectedHousehold = householdOptions.find((option) => option.id === householdId)
-
-    setDefaultMutation.mutate(householdId, {
-      onSuccess: () => {
-        setSwitchToast({
-          open: true,
-          title: 'Default household updated',
-          description: selectedHousehold ? `"${selectedHousehold.name}" is now your default household.` : undefined,
-          variant: 'success',
-        })
-      },
-      onError: (error) => {
-        setSwitchToast({
-          open: true,
-          title: 'Update failed',
-          description: error instanceof Error ? error.message : 'Unable to set default household.',
-          variant: 'error',
-        })
-      },
-    })
+    navigate(`/households/${householdId}`)
   }
 
   const handleLogout = async () => {
@@ -114,7 +82,7 @@ const Dashboard: React.FC = () => {
       householdOptions={householdOptions}
       selectedHouseholdId={selectedHouseholdIdForHeader}
       onSelectHousehold={handleSelectHousehold}
-      isSwitchingHousehold={setDefaultMutation.isPending}
+      isSwitchingHousehold={false}
     >
       <ToastMessage
         open={showWelcomeToast}
@@ -123,15 +91,6 @@ const Dashboard: React.FC = () => {
         variant="success"
         durationMs={3500}
       />
-      <ToastMessage
-        open={switchToast.open}
-        title={switchToast.title}
-        description={switchToast.description}
-        onClose={() => setSwitchToast((current) => ({ ...current, open: false }))}
-        variant={switchToast.variant}
-        durationMs={3500}
-      />
-
       {currentHouseholdName ? (
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-100 md:text-3xl">Welcome to {currentHouseholdName}</h1>

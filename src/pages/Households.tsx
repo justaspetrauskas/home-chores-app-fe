@@ -77,27 +77,7 @@ const Households: React.FC = () => {
   const handleSelectHousehold = (householdId: string) => {
     if (!householdId || householdId === selectedHouseholdId) return
     setSelectedHouseholdInStorage(householdId)
-
-    const selectedHousehold = householdOptions.find((option) => option.id === householdId)
-
-    setDefaultMutation.mutate(householdId, {
-      onSuccess: () => {
-        setToast({
-          open: true,
-          title: 'Default household updated',
-          description: selectedHousehold ? `"${selectedHousehold.name}" is now your default household.` : undefined,
-          variant: 'success',
-        })
-      },
-      onError: (error) => {
-        setToast({
-          open: true,
-          title: 'Update failed',
-          description: error instanceof Error ? error.message : 'Unable to set default household.',
-          variant: 'error',
-        })
-      },
-    })
+    navigate(`/households/${householdId}`)
   }
 
   const isConfirming = useMemo(() => {
@@ -173,7 +153,7 @@ const Households: React.FC = () => {
       householdOptions={householdOptions}
       selectedHouseholdId={selectedHouseholdIdForHeader}
       onSelectHousehold={handleSelectHousehold}
-      isSwitchingHousehold={setDefaultMutation.isPending}
+      isSwitchingHousehold={false}
     >
       <ToastMessage
         open={toast.open}
