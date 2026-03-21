@@ -7,11 +7,9 @@ import DashboardOverview from '../components/dashboard/DashboardOverview'
 import EmptyStateCard from '../components/dashboard/EmptyStateCard'
 import ToastMessage from '../components/ui/ToastMessage'
 import Card from '../components/ui/Card'
-import Input from '../components/ui/Input'
-import Label from '../components/ui/Label'
-import Button from '../components/ui/Button'
-import SingleDayDatePicker from '../components/ui/SingleDayDatePicker'
+import CreateEventForm, { type CreateEventData } from '../components/events/CreateEventForm'
 import { useSelectedHouseholdStorage } from '../hooks/useSelectedHouseholdStorage'
+import { useHouseholdByIdQuery } from '../hooks/useHouseholdByIdQuery'
 
 type LocalEvent = {
   id: string
@@ -33,10 +31,6 @@ const Events: React.FC = () => {
   const { user, logout } = useAuth()
   const { value: selectedHouseholdFromStorage, setValue: setSelectedHouseholdInStorage } = useSelectedHouseholdStorage()
   const [isCreateFormOpen, setIsCreateFormOpen] = useState(false)
-  const [eventName, setEventName] = useState('')
-  const [eventDate, setEventDate] = useState('')
-  const [notificationDate, setNotificationDate] = useState('')
-  const [formError, setFormError] = useState<string | null>(null)
   const [localEvents, setLocalEvents] = useState<LocalEvent[]>([])
   const [toast, setToast] = useState<{ open: boolean; title: string; description?: string; variant: 'success' | 'error' }>({
     open: false,
@@ -71,6 +65,9 @@ const Events: React.FC = () => {
   const selectedHouseholdIdForHeader = selectedHouseholdId ?? undefined
   const selectedHousehold = householdOptions.find((option) => option.id === selectedHouseholdId)
   const currentHouseholdName = selectedHousehold?.name ?? user?.defaultHousehold?.name ?? memberships[0]?.household?.name ?? memberships[0]?.householdName ?? null
+  const { data: householdDetails } = useHouseholdByIdQuery(selectedHouseholdId ?? undefined)
+  const householdMembers = householdDetails?.members ?? []
+  const householdRooms = householdDetails?.rooms ?? []
   const hasAnyEvents = cleaningEvents.length > 0 || localEvents.length > 0
 
   const handlePrimaryAction = () => {
@@ -80,7 +77,6 @@ const Events: React.FC = () => {
     }
 
     setIsCreateFormOpen(true)
-    setFormError(null)
   }
 
   const handleSelectHousehold = (householdId: string) => {
@@ -89,35 +85,17 @@ const Events: React.FC = () => {
     navigate(`/households/${householdId}`)
   }
 
-  const handleSubmitEvent = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-
-    const trimmedName = eventName.trim()
-
-    if (!trimmedName || !eventDate || !notificationDate) {
-      setFormError('Please fill in event name, event date, and notification date.')
-      return
-    }
-
-    if (notificationDate > eventDate) {
-      setFormError('Notification date cannot be after the event date.')
-      return
-    }
-
+  const handleSubmitEvent = ({ name, eventDate, notificationDate }: CreateEventData) => {
     setLocalEvents((current) => [
       {
         id: `${Date.now()}`,
-        name: trimmedName,
+        name,
         eventDate,
         notificationDate,
       },
       ...current,
     ])
 
-    setEventName('')
-    setEventDate('')
-    setNotificationDate('')
-    setFormError(null)
     setIsCreateFormOpen(false)
     setToast({ open: true, title: 'Event created', description: 'Cleaning event has been added.', variant: 'success' })
   }
@@ -160,51 +138,12 @@ const Events: React.FC = () => {
       <DashboardOverview title="Overview" description={membershipSummary} />
 
       {isCreateFormOpen ? (
-        <Card className="mb-6">
-          <form className="space-y-4" onSubmit={handleSubmitEvent}>
-            <div>
-              <Label htmlFor="event-name">Event name</Label>
-              <Input
-                id="event-name"
-                value={eventName}
-                onChange={(e) => setEventName(e.target.value)}
-                placeholder="Kitchen Deep Clean"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div>
-                <Label htmlFor="event-date">Event date</Label>
-                <SingleDayDatePicker id="event-date" value={eventDate} onChange={setEventDate} placeholder="Select event date" />
-              </div>
-              <div>
-                <Label htmlFor="notification-date">Notification date</Label>
-                <SingleDayDatePicker
-                  id="notification-date"
-                  value={notificationDate}
-                  onChange={setNotificationDate}
-                  placeholder="Select notification date"
-                />
-              </div>
-            </div>
-
-            {formError ? <p className="text-sm text-red-600 dark:text-red-400">{formError}</p> : null}
-
-            <div className="flex justify-end gap-2">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  setIsCreateFormOpen(false)
-                  setFormError(null)
-                }}
-              >
-                Cancel
-              </Button>
-              <Button type="submit">Create Event</Button>
-            </div>
-          </form>
-        </Card>
+        <CreateEventForm
+          householdMembers={householdMembers}
+          householdRooms={householdRooms}
+          onSubmit={handleSubmitEvent}
+          onCancel={() => setIsCreateFormOpen(false)}
+        />
       ) : null}
 
       {!hasAnyEvents ? (

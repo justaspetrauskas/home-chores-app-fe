@@ -2,6 +2,7 @@ import React from 'react'
 import { ArrowLeftOnRectangleIcon, PlusIcon, SunIcon, MoonIcon } from '@heroicons/react/24/outline'
 import { NavLink } from 'react-router-dom'
 import Button from '../ui/Button'
+import DropdownSelect from '../ui/DropdownSelect'
 import { useTheme } from '../../hooks/useTheme'
 
 export type HouseholdSwitcherOption = {
@@ -65,19 +66,20 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             </label>
           ) : null}
           {showHouseholdSwitcher ? (
-            <select
+            <DropdownSelect
               id="household-switcher"
               value={selectedHouseholdId ?? householdOptions[0]?.id ?? ''}
-              onChange={(event) => onSelectHousehold?.(event.target.value)}
+              onChange={(householdId) => onSelectHousehold?.(householdId)}
               disabled={isSwitchingHousehold}
-              className="min-w-52 rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs font-medium text-stone-700 transition-colors hover:border-amber-300 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/20 disabled:cursor-not-allowed disabled:opacity-60 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-200 dark:hover:border-amber-700"
-            >
-              {householdOptions.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.name} ({option.membershipStatus})
-                </option>
-              ))}
-            </select>
+              options={householdOptions.map((option) => ({
+                value: option.id,
+                label: `${option.name} (${option.membershipStatus})`,
+              }))}
+              placeholder="Select household"
+              ariaLabel="Select household"
+              className="h-10 min-w-52 rounded-lg border border-stone-300 bg-white pl-3 pr-10 text-left text-xs font-medium text-stone-700 transition-colors hover:border-amber-300 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/20 disabled:cursor-not-allowed disabled:opacity-60 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-200 dark:hover:border-amber-700"
+              menuClassName="absolute z-20 mt-1 max-h-56 min-w-52 w-full overflow-auto rounded-lg border border-stone-200 bg-white p-1 shadow-lg dark:border-stone-700 dark:bg-stone-800"
+            />
           ) : null}
 
           {onPrimaryAction && primaryActionLabel ? (
