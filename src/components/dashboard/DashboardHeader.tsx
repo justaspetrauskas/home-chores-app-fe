@@ -4,10 +4,20 @@ import { NavLink } from 'react-router-dom'
 import Button from '../ui/Button'
 import { useTheme } from '../../hooks/useTheme'
 
+export type HouseholdSwitcherOption = {
+  id: string
+  name: string
+  membershipStatus: string
+}
+
 type DashboardHeaderProps = {
   onPrimaryAction?: () => void
   primaryActionLabel?: string
   onLogout: () => void
+  householdOptions?: HouseholdSwitcherOption[]
+  selectedHouseholdId?: string
+  onSelectHousehold?: (householdId: string) => void
+  isSwitchingHousehold?: boolean
 }
 
 const navLinkClassName = ({ isActive }: { isActive: boolean }) =>
@@ -17,8 +27,17 @@ const navLinkClassName = ({ isActive }: { isActive: boolean }) =>
       : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-stone-700 dark:hover:text-stone-100'
   }`
 
-const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onPrimaryAction, primaryActionLabel, onLogout }) => {
+const DashboardHeader: React.FC<DashboardHeaderProps> = ({
+  onPrimaryAction,
+  primaryActionLabel,
+  onLogout,
+  householdOptions = [],
+  selectedHouseholdId,
+  onSelectHousehold,
+  isSwitchingHousehold = false,
+}) => {
   const { theme, toggleTheme } = useTheme()
+  const showHouseholdSwitcher = householdOptions.length > 1 && Boolean(onSelectHousehold)
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-stone-200 bg-white/95 backdrop-blur dark:border-stone-700 dark:bg-stone-900/95">
@@ -36,7 +55,28 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onPrimaryAction, prim
             </NavLink>
           </nav>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {showHouseholdSwitcher ? (
+            <label className="sr-only" htmlFor="household-switcher">
+              Select household
+            </label>
+          ) : null}
+          {showHouseholdSwitcher ? (
+            <select
+              id="household-switcher"
+              value={selectedHouseholdId ?? householdOptions[0]?.id ?? ''}
+              onChange={(event) => onSelectHousehold?.(event.target.value)}
+              disabled={isSwitchingHousehold}
+              className="min-w-52 rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs font-medium text-stone-700 transition-colors hover:border-amber-300 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/20 disabled:cursor-not-allowed disabled:opacity-60 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-200 dark:hover:border-amber-700"
+            >
+              {householdOptions.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.name} ({option.membershipStatus})
+                </option>
+              ))}
+            </select>
+          ) : null}
+
           {onPrimaryAction && primaryActionLabel ? (
             <Button variant="primary" onClick={onPrimaryAction} className="flex items-center gap-1.5">
               <PlusIcon className="size-4" />

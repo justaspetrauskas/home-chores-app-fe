@@ -39,6 +39,7 @@ export type HouseholdMembership = {
   id?: string
   role?: HouseholdMembershipRole | string
   householdId?: string
+  householdName?: string
   household?: HouseholdSummary | null
 }
 

@@ -6,6 +6,7 @@ import Auth from './pages/Auth'
 import Dashboard from './pages/Dashboard'
 import Households from './pages/Households'
 import CreateHousehold from './components/households/CreateHousehold'
+import HouseholdDetails from './pages/HouseholdDetails'
 
 const App: React.FC = () => {
   return (
@@ -18,6 +19,7 @@ const App: React.FC = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/households" element={<Households />}>
           <Route path="new" element={<CreateHousehold />} />
+          <Route path=":householdId" element={<HouseholdDetails />} />
         </Route>
       </Route>
 

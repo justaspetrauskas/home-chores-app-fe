@@ -1,12 +1,23 @@
 import axios from 'axios'
 import { apiClient } from './apiClient'
-import type { CreateHouseholdPayload, CreateHouseholdResponse, Household } from '../types/household'
+import type { CreateHouseholdPayload, CreateHouseholdResponse, Household, HouseholdDetails } from '../types/household'
 
-export type { CreateHouseholdPayload, CreateHouseholdResponse, Household }
+export type { CreateHouseholdPayload, CreateHouseholdResponse, Household, HouseholdDetails }
 
 export async function getHouseholdsRequest(): Promise<Household[]> {
   const { data } = await apiClient.get<Household[]>('/households')
   return data
+}
+
+export async function getHouseholdByIdRequest(householdId: string): Promise<HouseholdDetails> {
+  const { data } = await apiClient.get(`/households/${householdId}`)
+
+  const unwrapped =
+    (data?.data?.household as HouseholdDetails | undefined)
+    ?? (data?.data as HouseholdDetails | undefined)
+    ?? (data as HouseholdDetails)
+
+  return unwrapped
 }
 
 export async function createHouseholdRequest(payload: CreateHouseholdPayload): Promise<CreateHouseholdResponse> {
@@ -24,7 +35,7 @@ export async function createHouseholdRequest(payload: CreateHouseholdPayload): P
 
 export async function setDefaultHouseholdRequest(householdId: string): Promise<void> {
   try {
-    await apiClient.patch(`/households/${householdId}/default`)
+    await apiClient.post(`/households/${householdId}/set-default`, { householdId })
   } catch (error) {
     if (axios.isAxiosError<{ error?: string; message?: string }>(error)) {
       const apiMessage = error.response?.data?.error || error.response?.data?.message
