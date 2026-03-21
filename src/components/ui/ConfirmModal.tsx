@@ -44,9 +44,9 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/50 p-4 backdrop-blur-sm" onClick={!isConfirming ? onCancel : undefined}>
-      <div className="w-full max-w-md rounded-xl border border-stone-200 bg-white p-6 shadow-xl" onClick={(event) => event.stopPropagation()}>
-        <h2 className="text-lg font-bold text-stone-900">{title}</h2>
-        <p className="mt-2 text-sm leading-6 text-stone-600">{message}</p>
+      <div className="w-full max-w-md rounded-xl border border-stone-200 bg-white p-6 shadow-xl dark:border-stone-700 dark:bg-stone-800" onClick={(event) => event.stopPropagation()}>
+        <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">{title}</h2>
+        <p className="mt-2 text-sm leading-6 text-stone-600 dark:text-stone-400">{message}</p>
 
         <div className="mt-6 flex justify-end gap-2">
           <Button

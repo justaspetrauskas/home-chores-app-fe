@@ -1,7 +1,7 @@
 import React from 'react'
 
 const Label: React.FC<React.LabelHTMLAttributes<HTMLLabelElement>> = ({ children, className = '', ...rest }) => (
-  <label className={`text-xs font-semibold uppercase tracking-wider text-stone-600 ${className}`} {...rest}>
+  <label className={`text-xs font-semibold uppercase tracking-wider text-stone-600 dark:text-stone-400 ${className}`} {...rest}>
     {children}
   </label>
 )

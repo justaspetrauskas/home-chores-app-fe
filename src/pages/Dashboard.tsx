@@ -67,7 +67,8 @@ const Dashboard: React.FC = () => {
       {currentHouseholdName ? (
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-stone-900 md:text-3xl">Welcome to {currentHouseholdName}</h1>
-          <p className="mt-1 text-sm text-stone-500">
+        <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-100 md:text-3xl">Welcome to {currentHouseholdName}</h1>
+          <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
             {hasCleaningEvents ? 'Your household activity is shown below.' : 'Create your first cleaning event to get started.'}
           </p>
         </div>

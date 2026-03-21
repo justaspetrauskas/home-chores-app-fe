@@ -80,7 +80,7 @@ const Households: React.FC = () => {
       onLogout={handleLogout}
       showPrimaryAction={!isOnNewForm}
     >
-      <p className="mb-4 text-sm text-stone-500">
+      <p className="mb-4 text-sm text-stone-500 dark:text-stone-400">
         Welcome back{user?.username ? `, ${user.username}` : ''}. Manage your household setup from here.
       </p>
 

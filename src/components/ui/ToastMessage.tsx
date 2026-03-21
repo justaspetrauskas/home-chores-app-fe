@@ -15,24 +15,24 @@ type ToastMessageProps = {
 function getVariantClasses(variant: ToastVariant) {
   if (variant === 'error') {
     return {
-      container: 'border-rose-200 bg-rose-50/95 shadow-rose-100/60',
-      title: 'text-rose-800',
-      description: 'text-rose-700',
+      container: 'border-rose-200 bg-rose-50/95 shadow-rose-100/60 dark:border-rose-700 dark:bg-rose-900/80',
+      title: 'text-rose-800 dark:text-rose-200',
+      description: 'text-rose-700 dark:text-rose-300',
     }
   }
 
   if (variant === 'info') {
     return {
-      container: 'border-stone-200 bg-white/95 shadow-stone-100/60',
-      title: 'text-stone-700',
-      description: 'text-stone-600',
+      container: 'border-stone-200 bg-white/95 shadow-stone-100/60 dark:border-stone-600 dark:bg-stone-800/95',
+      title: 'text-stone-700 dark:text-stone-200',
+      description: 'text-stone-600 dark:text-stone-400',
     }
   }
 
   return {
-    container: 'border-amber-200 bg-amber-50/95 shadow-amber-100/60',
-    title: 'text-amber-900',
-    description: 'text-amber-700',
+    container: 'border-amber-200 bg-amber-50/95 shadow-amber-100/60 dark:border-amber-600 dark:bg-amber-900/70',
+    title: 'text-amber-900 dark:text-amber-200',
+    description: 'text-amber-700 dark:text-amber-300',
   }
 }
 

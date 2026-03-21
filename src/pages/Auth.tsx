@@ -49,7 +49,7 @@ const Auth: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-stone-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-stone-50 dark:bg-stone-900 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center pb-6 mb-0">
           <div className="flex items-center justify-center mb-4">
@@ -66,12 +66,12 @@ const Auth: React.FC = () => {
         </CardHeader>
 
         <div className="px-6 pb-4">
-          <div className="flex items-center justify-center gap-2 p-1 bg-stone-100 rounded-lg">
+          <div className="flex items-center justify-center gap-2 p-1 bg-stone-100 dark:bg-stone-700 rounded-lg">
             <button
               type="button"
               onClick={() => !isLogin && toggleMode()}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-semibold transition-all ${
-                isLogin ? 'bg-white shadow-sm text-stone-900' : 'text-stone-500 hover:text-stone-900'
+                isLogin ? 'bg-white shadow-sm text-stone-900 dark:bg-stone-600 dark:text-stone-100' : 'text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100'
               }`}
             >
               Sign In
@@ -80,7 +80,7 @@ const Auth: React.FC = () => {
               type="button"
               onClick={() => isLogin && toggleMode()}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-semibold transition-all ${
-                !isLogin ? 'bg-white shadow-sm text-stone-900' : 'text-stone-500 hover:text-stone-900'
+                !isLogin ? 'bg-white shadow-sm text-stone-900 dark:bg-stone-600 dark:text-stone-100' : 'text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100'
               }`}
             >
               Sign Up

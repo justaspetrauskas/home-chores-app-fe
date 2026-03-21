@@ -90,7 +90,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ isLoading, errorMessage, onSubm
         <Button type="submit" variant="primary" className="w-full h-11" disabled={isLoading}>
           {isLoading ? 'Creating account...' : 'Create account'}
         </Button>
-        {confirmPasswordError && <p className="text-sm text-red-600">{confirmPasswordError}</p>}
+        {confirmPasswordError && <p className="text-sm text-red-600 dark:text-red-400">{confirmPasswordError}</p>}
         {errorMessage && <p className="text-sm text-red-600">{errorMessage}</p>}
       </div>
     </form>

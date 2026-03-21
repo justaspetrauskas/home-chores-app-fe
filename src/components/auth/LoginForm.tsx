@@ -60,7 +60,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ isLoading, errorMessage, onSubmit
           {isLoading ? 'Signing in...' : 'Sign in'}
         </Button>
         {errorMessage && (
-          <p className="text-sm text-red-500 text-center">{errorMessage}</p>
+          <p className="text-sm text-red-500 dark:text-red-400 text-center">{errorMessage}</p>
         )}
       </div>
     </form>

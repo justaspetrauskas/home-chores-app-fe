@@ -5,12 +5,15 @@ import './index.css'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
 import { queryClient } from './lib/queryClient'
+import { ThemeProvider } from './hooks/useTheme'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <App />
+        <ThemeProvider>
+          <App />
+        </ThemeProvider>
       </BrowserRouter>
     </QueryClientProvider>
   </StrictMode>,

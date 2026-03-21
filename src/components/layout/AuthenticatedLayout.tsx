@@ -17,7 +17,7 @@ const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({
   showPrimaryAction = true,
 }) => {
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-900">
       <DashboardHeader
         onPrimaryAction={showPrimaryAction ? onPrimaryAction : undefined}
         primaryActionLabel={showPrimaryAction ? primaryActionLabel : undefined}

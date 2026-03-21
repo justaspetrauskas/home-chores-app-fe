@@ -44,9 +44,9 @@ const CreateHousehold: React.FC = () => {
       />
 
       <div className="space-y-1 mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-600">Household Setup</p>
-        <h1 className="text-3xl font-bold text-stone-900">Create a household</h1>
-        <p className="text-sm leading-6 text-stone-500">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-600 dark:text-amber-400">Household Setup</p>
+        <h1 className="text-3xl font-bold text-stone-900 dark:text-stone-100">Create a household</h1>
+        <p className="text-sm leading-6 text-stone-500 dark:text-stone-400">
           Give your household a name. You can invite members and create rooms after it is created.
         </p>
       </div>
@@ -67,7 +67,7 @@ const CreateHousehold: React.FC = () => {
           </div>
 
           {mutation.isError && (
-            <p className="text-sm text-rose-600">
+            <p className="text-sm text-rose-600 dark:text-rose-400">
               {mutation.error instanceof Error ? mutation.error.message : 'Something went wrong'}
             </p>
           )}

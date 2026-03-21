@@ -32,7 +32,7 @@ const CreateRooms: React.FC<CreateRoomsProps> = ({ householdId, householdName })
   }
 
   return (
-    <div className="mt-6 rounded-xl border border-stone-200 bg-stone-50/60">
+    <div className="mt-6 rounded-xl border border-stone-200 bg-stone-50/60 dark:border-stone-700 dark:bg-stone-700/30">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -40,25 +40,26 @@ const CreateRooms: React.FC<CreateRoomsProps> = ({ householdId, householdName })
       >
         <div>
           <p className="text-sm font-semibold text-stone-800">Add rooms to {householdName}</p>
+          <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">Add rooms to {householdName}</p>
           {createdRooms.length > 0 && (
-            <p className="text-xs text-stone-500 mt-0.5">
+            <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
               {createdRooms.length} room{createdRooms.length === 1 ? '' : 's'} added
             </p>
           )}
         </div>
         {open ? (
-          <ChevronUpIcon className="size-5 text-stone-400 shrink-0" />
+          <ChevronUpIcon className="size-5 text-stone-400 dark:text-stone-500 shrink-0" />
         ) : (
-          <ChevronDownIcon className="size-5 text-stone-400 shrink-0" />
+          <ChevronDownIcon className="size-5 text-stone-400 dark:text-stone-500 shrink-0" />
         )}
       </button>
 
       {open && (
-        <div className="border-t border-stone-200 px-6 pb-6 pt-4 space-y-4">
+        <div className="border-t border-stone-200 dark:border-stone-600 px-6 pb-6 pt-4 space-y-4">
           {createdRooms.length > 0 && (
             <ul className="space-y-1.5">
               {createdRooms.map((room) => (
-                <li key={room.id ?? room.name} className="flex items-center gap-2 text-sm text-stone-700">
+                <li key={room.id ?? room.name} className="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-300">
                   <CheckCircleIcon className="size-4 text-amber-500 shrink-0" />
                   {room.name}
                 </li>
@@ -89,7 +90,7 @@ const CreateRooms: React.FC<CreateRoomsProps> = ({ householdId, householdName })
           </form>
 
           {mutation.isError && (
-            <p className="text-sm text-rose-600">
+            <p className="text-sm text-rose-600 dark:text-rose-400">
               {mutation.error instanceof Error ? mutation.error.message : 'Something went wrong'}
             </p>
           )}
