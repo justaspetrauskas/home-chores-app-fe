@@ -38,7 +38,7 @@ const Households: React.FC = () => {
   const deleteMutation = useDeleteHouseholdMutation()
   const { value: selectedHouseholdFromStorage, setValue: setSelectedHouseholdInStorage } = useSelectedHouseholdStorage()
   const isOnNewForm = Boolean(useMatch('/households/new'))
-  const isOnDetailsPage = Boolean(useMatch('/households/:householdId')) && !isOnNewForm
+  const isOnHouseholdSubPage = Boolean(useMatch('/households/:householdId/*')) && !isOnNewForm
   const [pendingAction, setPendingAction] = useState<
     | {
         type: 'set-default' | 'delete'
@@ -189,7 +189,7 @@ const Households: React.FC = () => {
 
       <DashboardOverview title="Households" description={overviewDescription} />
 
-      {hasMemberships && !isOnNewForm && !isOnDetailsPage && (
+      {hasMemberships && !isOnNewForm && !isOnHouseholdSubPage && (
         householdsLoading ? (
           <p className="text-sm text-slate-400 mb-6">Loading households…</p>
         ) : households && households.length > 0 ? (

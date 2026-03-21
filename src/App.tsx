@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard'
 import Households from './pages/Households'
 import CreateHousehold from './components/households/CreateHousehold'
 import HouseholdDetails from './pages/HouseholdDetails'
+import ManageRooms from './pages/ManageRooms'
 
 const App: React.FC = () => {
   return (
@@ -20,6 +21,7 @@ const App: React.FC = () => {
         <Route path="/households" element={<Households />}>
           <Route path="new" element={<CreateHousehold />} />
           <Route path=":householdId" element={<HouseholdDetails />} />
+          <Route path=":householdId/manage-rooms" element={<ManageRooms />} />
         </Route>
       </Route>
 
