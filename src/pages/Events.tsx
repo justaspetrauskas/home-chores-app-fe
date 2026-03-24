@@ -18,6 +18,15 @@ type LocalEvent = {
   notificationDate: string
 }
 
+type ToastState = {
+  open: boolean
+  title: string
+  description?: string
+  variant: 'success' | 'error'
+  actionLabel?: string
+  actionEventId?: string
+}
+
 function formatMembershipRole(role?: string) {
   if (!role) return null
   const normalized = role
@@ -32,7 +41,7 @@ const Events: React.FC = () => {
   const { value: selectedHouseholdFromStorage, setValue: setSelectedHouseholdInStorage } = useSelectedHouseholdStorage()
   const [isCreateFormOpen, setIsCreateFormOpen] = useState(false)
   const [localEvents, setLocalEvents] = useState<LocalEvent[]>([])
-  const [toast, setToast] = useState<{ open: boolean; title: string; description?: string; variant: 'success' | 'error' }>({
+  const [toast, setToast] = useState<ToastState>({
     open: false,
     title: '',
     variant: 'success',
@@ -86,18 +95,33 @@ const Events: React.FC = () => {
   }
 
   const handleSubmitEvent = ({ name, eventDate, notificationDate }: CreateEventData) => {
+    const nextEvent: LocalEvent = {
+      id: `${Date.now()}`,
+      name,
+      eventDate,
+      notificationDate,
+    }
+
     setLocalEvents((current) => [
-      {
-        id: `${Date.now()}`,
-        name,
-        eventDate,
-        notificationDate,
-      },
+      nextEvent,
       ...current,
     ])
 
-    setIsCreateFormOpen(false)
-    setToast({ open: true, title: 'Event created', description: 'Cleaning event has been added.', variant: 'success' })
+    setToast({
+      open: true,
+      title: 'Event created',
+      description: 'Cleaning event has been added.',
+      variant: 'success',
+      actionLabel: 'Undo',
+      actionEventId: nextEvent.id,
+    })
+  }
+
+  const handleUndoCreate = () => {
+    if (!toast.actionEventId) return
+
+    setLocalEvents((current) => current.filter((event) => event.id !== toast.actionEventId))
+    setToast({ open: true, title: 'Creation undone', description: 'The event was removed.', variant: 'success' })
   }
 
   const handleLogout = async () => {
@@ -125,7 +149,9 @@ const Events: React.FC = () => {
         title={toast.title}
         description={toast.description}
         variant={toast.variant}
-        onClose={() => setToast((current) => ({ ...current, open: false }))}
+        actionLabel={toast.actionLabel}
+        onAction={toast.actionLabel ? handleUndoCreate : undefined}
+        onClose={() => setToast((current) => ({ ...current, open: false, actionLabel: undefined, actionEventId: undefined }))}
       />
 
       {currentHouseholdName ? (

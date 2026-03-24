@@ -6,6 +6,8 @@ type ToastMessageProps = {
   open: boolean
   title: string
   description?: string
+  actionLabel?: string
+  onAction?: () => void
   onClose?: () => void
   durationMs?: number
   variant?: ToastVariant
@@ -40,6 +42,8 @@ const ToastMessage: React.FC<ToastMessageProps> = ({
   open,
   title,
   description,
+  actionLabel,
+  onAction,
   onClose,
   durationMs = 3500,
   variant = 'success',
@@ -67,8 +71,21 @@ const ToastMessage: React.FC<ToastMessageProps> = ({
       role="status"
       aria-live="polite"
     >
-      <p className={`text-sm font-semibold ${variantClasses.title}`}>{title}</p>
-      {description ? <p className={`mt-1 text-xs ${variantClasses.description}`}>{description}</p> : null}
+      <div className="flex items-start gap-3">
+        <div>
+          <p className={`text-sm font-semibold ${variantClasses.title}`}>{title}</p>
+          {description ? <p className={`mt-1 text-xs ${variantClasses.description}`}>{description}</p> : null}
+        </div>
+        {actionLabel && onAction ? (
+          <button
+            type="button"
+            onClick={onAction}
+            className="rounded-md border border-stone-300 bg-white px-2 py-1 text-xs font-semibold text-stone-700 transition-colors hover:bg-stone-50 dark:border-stone-500 dark:bg-stone-700 dark:text-stone-200 dark:hover:bg-stone-600"
+          >
+            {actionLabel}
+          </button>
+        ) : null}
+      </div>
     </div>
   )
 }
