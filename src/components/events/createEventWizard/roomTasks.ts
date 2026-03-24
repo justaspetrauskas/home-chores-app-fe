@@ -1,4 +1,4 @@
-import type { RoomDisplay, RoomQuickPick } from './types'
+import type { RoomDisplay } from './types'
 
 export function getRoomTasks(roomName: string) {
   const normalized = roomName.toLowerCase()
@@ -22,14 +22,6 @@ export function getRoomTasks(roomName: string) {
   return ['Quick tidy', 'Wipe high-touch surfaces', 'Floor check']
 }
 
-export function getQuickPickedRoomIds(rooms: RoomDisplay[], pick: RoomQuickPick) {
-  if (pick === 'all') {
-    return rooms.map((room) => room.id)
-  }
-
-  if (pick === 'high-traffic') {
-    return rooms.filter((room) => /kitchen|living|hall|entry|corridor/i.test(room.name)).map((room) => room.id)
-  }
-
-  return rooms.filter((room) => /bath|kitchen|laundry/i.test(room.name)).map((room) => room.id)
+export function getAllRoomIds(rooms: RoomDisplay[]) {
+  return rooms.map((room) => room.id)
 }

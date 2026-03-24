@@ -6,14 +6,13 @@ import type { RoomDisplay } from './types'
 
 type Props = {
   filteredRooms: RoomDisplay[]
+  totalRoomsCount: number
   expandedRoomIds: string[]
   selectedRoomIds: string[]
   roomSearch: string
   selectedRoomCount: number
   selectedPreviewRoom: RoomDisplay | undefined
   onQuickPickAll: () => void
-  onQuickPickHighTraffic: () => void
-  onQuickPickWetZones: () => void
   onRoomSearchChange: (value: string) => void
   onToggleRoomExpanded: (roomId: string) => void
   onToggleRoomSelected: (roomId: string) => void
@@ -25,14 +24,13 @@ type Props = {
 
 const RoomsStep: React.FC<Props> = ({
   filteredRooms,
+  totalRoomsCount,
   expandedRoomIds,
   selectedRoomIds,
   roomSearch,
   selectedRoomCount,
   selectedPreviewRoom,
   onQuickPickAll,
-  onQuickPickHighTraffic,
-  onQuickPickWetZones,
   onRoomSearchChange,
   onToggleRoomExpanded,
   onToggleRoomSelected,
@@ -52,18 +50,14 @@ const RoomsStep: React.FC<Props> = ({
         <Button type="button" size="sm" variant="secondary" onClick={onQuickPickAll}>
           Quick pick: All rooms
         </Button>
-        <Button type="button" size="sm" variant="secondary" onClick={onQuickPickHighTraffic}>
-          Quick pick: High traffic
-        </Button>
-        <Button type="button" size="sm" variant="secondary" onClick={onQuickPickWetZones}>
-          Quick pick: Wet zones
-        </Button>
       </div>
 
-      <div>
-        <Label htmlFor="room-search">Search rooms</Label>
-        <Input id="room-search" value={roomSearch} onChange={(e) => onRoomSearchChange(e.target.value)} placeholder="Type room name..." />
-      </div>
+      {totalRoomsCount > 5 ? (
+        <div>
+          <Label htmlFor="room-search">Search rooms</Label>
+          <Input id="room-search" value={roomSearch} onChange={(e) => onRoomSearchChange(e.target.value)} placeholder="Type room name..." />
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="max-h-96 space-y-2 overflow-y-auto pr-1">

@@ -64,7 +64,7 @@ const DetailsStep: React.FC<Props> = ({
             value={eventDate}
             onChange={onEventDateChange}
             placeholder="Select event date"
-            minDate={dayjs().startOf('day').toDate()}
+            minDate={dayjs().add(1, 'day').startOf('day').toDate()}
           />
         </div>
         <div>
@@ -75,7 +75,7 @@ const DetailsStep: React.FC<Props> = ({
             onChange={onNotificationDateChange}
             placeholder="Select notification date"
             minDate={dayjs().startOf('day').toDate()}
-            maxDate={dayjs(eventDate || today).endOf('day').toDate()}
+            maxDate={dayjs(eventDate || today).subtract(1, 'day').endOf('day').toDate()}
           />
         </div>
       </div>

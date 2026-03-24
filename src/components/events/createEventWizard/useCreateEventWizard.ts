@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import dayjs from 'dayjs'
 import type { HouseholdMember, HouseholdRoom } from '../../../types/household'
-import { getQuickPickedRoomIds, getRoomTasks } from './roomTasks'
-import type { DistributionMode, MemberDisplay, RecurrenceRule, RoomDisplay, RoomQuickPick } from './types'
+import { getAllRoomIds, getRoomTasks } from './roomTasks'
+import type { DistributionMode, MemberDisplay, RecurrenceRule, RoomDisplay } from './types'
 import type { CreateEventData, CreateEventDraft } from './createEventTypes'
 import { useEventDraftSession } from './useEventDraftSession'
 
@@ -13,11 +13,35 @@ type Params = {
 }
 
 export function useCreateEventWizard({ householdMembers, householdRooms, onSubmit }: Params) {
-  const draftSession = useEventDraftSession()
+  const { readDraft, saveDraft, clearDraft } = useEventDraftSession()
   const today = dayjs().format('YYYY-MM-DD')
+  const defaultEventDate = dayjs().add(1, 'day').format('YYYY-MM-DD')
+  const defaultNotificationDate = dayjs(defaultEventDate).subtract(1, 'day').format('YYYY-MM-DD')
+
+  const isValidDateString = (value?: string | null) => {
+    if (!value) return false
+    return dayjs(value, 'YYYY-MM-DD', true).isValid()
+  }
+
+  const getSafeEventDate = (candidateDate?: string | null): string => {
+    if (!isValidDateString(candidateDate)) return defaultEventDate
+    return candidateDate as string
+  }
+
+  const getLatestAllowedNotificationDate = (targetEventDate: string) => {
+    return dayjs(targetEventDate).subtract(1, 'day').format('YYYY-MM-DD')
+  }
+
+  const getSafeNotificationDate = (targetEventDate: string, candidateDate?: string | null): string => {
+    const latestAllowed = getLatestAllowedNotificationDate(targetEventDate)
+    if (!isValidDateString(candidateDate)) return latestAllowed
+    const normalizedCandidate = candidateDate as string
+    return normalizedCandidate > latestAllowed ? latestAllowed : normalizedCandidate
+  }
+
   const [eventName, setEventName] = useState('')
-  const [eventDate, setEventDate] = useState(today)
-  const [notificationDate, setNotificationDate] = useState(today)
+  const [eventDate, setEventDate] = useState(defaultEventDate)
+  const [notificationDate, setNotificationDate] = useState(defaultNotificationDate)
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>(
     householdMembers.map((member) => member.id ?? member.userId ?? '').filter(Boolean),
   )
@@ -28,11 +52,11 @@ export function useCreateEventWizard({ householdMembers, householdRooms, onSubmi
   const [distributionMode, setDistributionMode] = useState<DistributionMode>('random')
   const [recurrenceRule, setRecurrenceRule] = useState<RecurrenceRule>('none')
   const [showMoreOptions, setShowMoreOptions] = useState(false)
-  const [notifyParticipants, setNotifyParticipants] = useState(false)
+  const [notifyParticipants, setNotifyParticipants] = useState(true)
   const [currentStep, setCurrentStep] = useState(1)
   const [lastCreatedName, setLastCreatedName] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
-  const [pendingResumeDraft, setPendingResumeDraft] = useState<CreateEventDraft | null>(null)
+  const [pendingResumeDraft, setPendingResumeDraft] = useState<CreateEventDraft | null>(() => readDraft())
   const [isHydrated, setIsHydrated] = useState(false)
 
   const rooms = useMemo<RoomDisplay[]>(() => {
@@ -60,10 +84,23 @@ export function useCreateEventWizard({ householdMembers, householdRooms, onSubmi
   const selectedRoomCount = selectedRoomIds.length
 
   useEffect(() => {
-    const draft = draftSession.readDraft()
-    setPendingResumeDraft(draft)
+    if (!eventDate) return
+
+    const latestAllowed = getLatestAllowedNotificationDate(eventDate)
+    if (!notificationDate || notificationDate > latestAllowed) {
+      setNotificationDate(latestAllowed)
+    }
+  }, [eventDate, notificationDate])
+
+  useEffect(() => {
+    if (rooms.length <= 5 && roomSearch) {
+      setRoomSearch('')
+    }
+  }, [rooms.length, roomSearch])
+
+  useEffect(() => {
     setIsHydrated(true)
-  }, [draftSession])
+  }, [])
 
   useEffect(() => {
     if (!isHydrated || pendingResumeDraft) return
@@ -80,11 +117,11 @@ export function useCreateEventWizard({ householdMembers, householdRooms, onSubmi
       currentStep,
     }
 
-    draftSession.saveDraft(draft)
+    saveDraft(draft)
   }, [
     currentStep,
     distributionMode,
-    draftSession,
+    saveDraft,
     eventDate,
     eventName,
     isHydrated,
@@ -109,8 +146,8 @@ export function useCreateEventWizard({ householdMembers, householdRooms, onSubmi
     )
   }
 
-  const handleQuickPick = (pick: RoomQuickPick) => {
-    setSelectedRoomIds(getQuickPickedRoomIds(rooms, pick))
+  const handleQuickPickAll = () => {
+    setSelectedRoomIds(getAllRoomIds(rooms))
     setFormError(null)
   }
 
@@ -161,8 +198,8 @@ export function useCreateEventWizard({ householdMembers, householdRooms, onSubmi
       return
     }
 
-    if (notificationDate > eventDate) {
-      setFormError('Notification date cannot be after the event date.')
+    if (notificationDate >= eventDate) {
+      setFormError('Notification date must be at least one day before the event date.')
       return
     }
 
@@ -186,7 +223,7 @@ export function useCreateEventWizard({ householdMembers, householdRooms, onSubmi
       recurrenceRule,
       notifyParticipants,
     })
-    draftSession.clearDraft()
+    clearDraft()
     setPendingResumeDraft(null)
     setLastCreatedName(trimmedName)
     setCurrentStep(4)
@@ -195,8 +232,8 @@ export function useCreateEventWizard({ householdMembers, householdRooms, onSubmi
 
   const resetWizardState = () => {
     setEventName('')
-    setEventDate(today)
-    setNotificationDate(today)
+    setEventDate(defaultEventDate)
+    setNotificationDate(defaultNotificationDate)
     setSelectedMemberIds(householdMembers.map((member) => member.id ?? member.userId ?? '').filter(Boolean))
     setSelectedRoomIds([])
     setExpandedRoomIds([])
@@ -204,25 +241,31 @@ export function useCreateEventWizard({ householdMembers, householdRooms, onSubmi
     setRoomSearch('')
     setDistributionMode('random')
     setRecurrenceRule('none')
-    setNotifyParticipants(false)
+    setNotifyParticipants(true)
     setFormError(null)
     setCurrentStep(1)
   }
 
   const handleCreateAnother = () => {
-    draftSession.clearDraft()
+    clearDraft()
+    setPendingResumeDraft(null)
+    resetWizardState()
+  }
+
+  const resetFlow = () => {
+    clearDraft()
     setPendingResumeDraft(null)
     resetWizardState()
   }
 
   const cancelFlow = () => {
-    draftSession.clearDraft()
+    clearDraft()
     setPendingResumeDraft(null)
     resetWizardState()
   }
 
   const discardResumeDraft = () => {
-    draftSession.clearDraft()
+    clearDraft()
     setPendingResumeDraft(null)
     resetWizardState()
   }
@@ -235,8 +278,9 @@ export function useCreateEventWizard({ householdMembers, householdRooms, onSubmi
 
     setSelectedMemberIds(pendingResumeDraft.participants.filter((id) => validMemberIds.has(id)))
     setSelectedRoomIds(pendingResumeDraft.rooms.filter((id) => validRoomIds.has(id)))
-    setEventDate(pendingResumeDraft.date ?? today)
-    setNotificationDate(pendingResumeDraft.notificationDate ?? pendingResumeDraft.date ?? today)
+    const draftEventDate = getSafeEventDate(pendingResumeDraft.date)
+    setEventDate(draftEventDate)
+    setNotificationDate(getSafeNotificationDate(draftEventDate, pendingResumeDraft.notificationDate))
     setDistributionMode(pendingResumeDraft.distributionType)
     setEventName(pendingResumeDraft.eventName)
     setRecurrenceRule(pendingResumeDraft.recurrenceRule)
@@ -258,6 +302,7 @@ export function useCreateEventWizard({ householdMembers, householdRooms, onSubmi
     selectedRoomIds,
     roomSearch,
     selectedRoomCount,
+    totalRoomsCount: rooms.length,
     selectedPreviewRoom,
     eventName,
     eventDate,
@@ -283,12 +328,11 @@ export function useCreateEventWizard({ householdMembers, householdRooms, onSubmi
     goToPreviousStep,
     handleSubmit,
     handleCreateAnother,
+    resetFlow,
     cancelFlow,
     resumeDraft,
     discardResumeDraft,
-    onQuickPickAll: () => handleQuickPick('all'),
-    onQuickPickHighTraffic: () => handleQuickPick('high-traffic'),
-    onQuickPickWetZones: () => handleQuickPick('wet-zones'),
+    onQuickPickAll: handleQuickPickAll,
     getRoomTasks,
     clearFormError: () => setFormError(null),
   }

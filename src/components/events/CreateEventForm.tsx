@@ -1,5 +1,6 @@
 import React from 'react'
 import Card from '../ui/Card'
+import Button from '../ui/Button'
 import type { HouseholdMember, HouseholdRoom } from '../../types/household'
 import CreatedStep from './createEventWizard/CreatedStep'
 import DetailsStep from './createEventWizard/DetailsStep'
@@ -34,7 +35,14 @@ const CreateEventForm: React.FC<Props> = ({ householdMembers, householdRooms, on
           <ResumeDraftNotice onResume={wizard.resumeDraft} onStartFresh={wizard.discardResumeDraft} onCancel={handleCancel} />
         ) : null}
 
-        {!wizard.hasResumeDraft ? <StepIndicators currentStep={wizard.currentStep} /> : null}
+        {!wizard.hasResumeDraft ? (
+          <div className="flex items-center justify-between gap-3">
+            <StepIndicators currentStep={wizard.currentStep} />
+            <Button type="button" variant="ghost" size="sm" onClick={wizard.resetFlow}>
+              Reset
+            </Button>
+          </div>
+        ) : null}
 
         {!wizard.hasResumeDraft && wizard.currentStep === 1 ? (
           <ParticipantsStep
@@ -49,14 +57,13 @@ const CreateEventForm: React.FC<Props> = ({ householdMembers, householdRooms, on
         {!wizard.hasResumeDraft && wizard.currentStep === 2 ? (
           <RoomsStep
             filteredRooms={wizard.filteredRooms}
+            totalRoomsCount={wizard.totalRoomsCount}
             expandedRoomIds={wizard.expandedRoomIds}
             selectedRoomIds={wizard.selectedRoomIds}
             roomSearch={wizard.roomSearch}
             selectedRoomCount={wizard.selectedRoomCount}
             selectedPreviewRoom={wizard.selectedPreviewRoom}
             onQuickPickAll={wizard.onQuickPickAll}
-            onQuickPickHighTraffic={wizard.onQuickPickHighTraffic}
-            onQuickPickWetZones={wizard.onQuickPickWetZones}
             onRoomSearchChange={wizard.setRoomSearch}
             onToggleRoomExpanded={wizard.toggleRoomExpanded}
             onToggleRoomSelected={wizard.toggleRoomSelected}
