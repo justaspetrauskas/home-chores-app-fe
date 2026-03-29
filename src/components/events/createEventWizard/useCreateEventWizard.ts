@@ -9,7 +9,7 @@ import { useEventDraftSession } from './useEventDraftSession'
 type Params = {
   householdMembers: HouseholdMember[]
   householdRooms: HouseholdRoom[]
-  onSubmit: (data: CreateEventData) => void
+  onSubmit: (data: CreateEventData) => Promise<void>
 }
 
 export function useCreateEventWizard({ householdMembers, householdRooms, onSubmit }: Params) {
@@ -28,15 +28,9 @@ export function useCreateEventWizard({ householdMembers, householdRooms, onSubmi
     return candidateDate as string
   }
 
-  const getLatestAllowedNotificationDate = (targetEventDate: string) => {
-    return dayjs(targetEventDate).subtract(1, 'day').format('YYYY-MM-DD')
-  }
-
-  const getSafeNotificationDate = (targetEventDate: string, candidateDate?: string | null): string => {
-    const latestAllowed = getLatestAllowedNotificationDate(targetEventDate)
-    if (!isValidDateString(candidateDate)) return latestAllowed
-    const normalizedCandidate = candidateDate as string
-    return normalizedCandidate > latestAllowed ? latestAllowed : normalizedCandidate
+  const getSafeNotificationDate = (_targetEventDate: string, candidateDate?: string | null): string => {
+    if (!isValidDateString(candidateDate)) return defaultNotificationDate
+    return candidateDate as string
   }
 
   const [eventName, setEventName] = useState('')
@@ -53,6 +47,7 @@ export function useCreateEventWizard({ householdMembers, householdRooms, onSubmi
   const [recurrenceRule, setRecurrenceRule] = useState<RecurrenceRule>('none')
   const [showMoreOptions, setShowMoreOptions] = useState(false)
   const [notifyParticipants, setNotifyParticipants] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
   const [lastCreatedName, setLastCreatedName] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
@@ -84,15 +79,6 @@ export function useCreateEventWizard({ householdMembers, householdRooms, onSubmi
   const selectedRoomCount = selectedRoomIds.length
 
   useEffect(() => {
-    if (!eventDate) return
-
-    const latestAllowed = getLatestAllowedNotificationDate(eventDate)
-    if (!notificationDate || notificationDate > latestAllowed) {
-      setNotificationDate(latestAllowed)
-    }
-  }, [eventDate, notificationDate])
-
-  useEffect(() => {
     if (rooms.length <= 5 && roomSearch) {
       setRoomSearch('')
     }
@@ -104,6 +90,25 @@ export function useCreateEventWizard({ householdMembers, householdRooms, onSubmi
 
   useEffect(() => {
     if (!isHydrated || pendingResumeDraft) return
+
+    if (currentStep === 4) {
+      clearDraft()
+      return
+    }
+
+    const hasMeaningfulProgress =
+      currentStep > 1
+      || eventName.trim().length > 0
+      || selectedRoomIds.length > 0
+      || roomSearch.trim().length > 0
+      || distributionMode !== 'random'
+      || recurrenceRule !== 'none'
+      || notifyParticipants !== true
+
+    if (!hasMeaningfulProgress) {
+      clearDraft()
+      return
+    }
 
     const draft: CreateEventDraft = {
       participants: selectedMemberIds,
@@ -129,6 +134,7 @@ export function useCreateEventWizard({ householdMembers, householdRooms, onSubmi
     notifyParticipants,
     pendingResumeDraft,
     recurrenceRule,
+    roomSearch,
     selectedMemberIds,
     selectedRoomIds,
   ])
@@ -178,8 +184,12 @@ export function useCreateEventWizard({ householdMembers, householdRooms, onSubmi
     setCurrentStep((step) => Math.max(step - 1, 1))
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    if (isSubmitting) {
+      return
+    }
 
     const trimmedName = eventName.trim()
 
@@ -198,11 +208,6 @@ export function useCreateEventWizard({ householdMembers, householdRooms, onSubmi
       return
     }
 
-    if (notificationDate >= eventDate) {
-      setFormError('Notification date must be at least one day before the event date.')
-      return
-    }
-
     const selectedRooms = rooms.filter((room) => selectedRoomIds.includes(room.id))
     const chores = selectedRooms.flatMap((room) =>
       getRoomTasks(room.name).map((taskName) => ({
@@ -212,22 +217,33 @@ export function useCreateEventWizard({ householdMembers, householdRooms, onSubmi
       })),
     )
 
-    onSubmit({
-      name: trimmedName,
-      eventDate,
-      notificationDate,
-      memberIds: selectedMemberIds,
-      roomIds: selectedRoomIds,
-      chores,
-      distributionMode,
-      recurrenceRule,
-      notifyParticipants,
-    })
-    clearDraft()
-    setPendingResumeDraft(null)
-    setLastCreatedName(trimmedName)
-    setCurrentStep(4)
+    setIsSubmitting(true)
     setFormError(null)
+
+    try {
+      await onSubmit({
+        name: trimmedName,
+        eventDate,
+        notificationDate,
+        memberIds: selectedMemberIds,
+        roomIds: selectedRoomIds,
+        chores,
+        distributionMode,
+        recurrenceRule,
+        notifyParticipants,
+      })
+
+      clearDraft()
+      setPendingResumeDraft(null)
+      setLastCreatedName(trimmedName)
+      setCurrentStep(4)
+      setFormError(null)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to create event.'
+      setFormError(message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const resetWizardState = () => {
@@ -311,6 +327,7 @@ export function useCreateEventWizard({ householdMembers, householdRooms, onSubmi
     recurrenceRule,
     showMoreOptions,
     notifyParticipants,
+    isSubmitting,
     lastCreatedName,
     setRoomSearch,
     setSelectedPreviewRoomId,

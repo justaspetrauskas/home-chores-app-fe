@@ -45,9 +45,56 @@ export type HouseholdMembership = {
 
 export type UserCleaningEvent = {
   id?: string
+  householdId?: string
+  createdByUserId?: string
   title?: string
   name?: string
+  eventDate?: string
   status?: string
+  createdAt?: string
+  participants?: string[]
+  taskAssignments?: Array<{
+    id?: string
+    assignedToUserId?: string
+    roomId?: string
+    room?: {
+      id?: string
+      name?: string
+    } | null
+    date?: string
+    status?: string
+  }>
+}
+
+export type UserTaskAssignment = {
+  id?: string
+  eventId?: string
+  assignedToId?: string
+  date?: string
+  status?: string
+  completedAt?: string | null
+  cleaningEventId?: string
+  cleaningEventName?: string
+  cleaningEvent?: {
+    id?: string
+    title?: string
+    name?: string
+    eventDate?: string
+    status?: string
+  } | null
+  roomId?: string
+  roomName?: string
+  room?: {
+    id?: string
+    name?: string
+  } | null
+  choreId?: string
+  choreTitle?: string
+  chore?: {
+    id?: string
+    title?: string
+    points?: number
+  } | null
 }
 
 export type MeResponse = {
@@ -57,7 +104,7 @@ export type MeResponse = {
   username?: string
   defaultHousehold?: HouseholdSummary | null
   memberships?: HouseholdMembership[]
-  taskAssignments?: unknown[]
+  taskAssignments?: UserTaskAssignment[]
   choresCreated?: unknown[]
   cleaningEvents?: UserCleaningEvent[]
 }
@@ -75,5 +122,6 @@ export type AuthUser = {
   email?: string
   defaultHousehold?: HouseholdSummary | null
   memberships: HouseholdMembership[]
+  taskAssignments: UserTaskAssignment[]
   cleaningEvents: UserCleaningEvent[]
 }

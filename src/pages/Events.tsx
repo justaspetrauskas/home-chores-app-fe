@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { CalendarDaysIcon, HomeModernIcon } from '@heroicons/react/24/outline'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import useAuth from '../hooks/useAuth'
 import AuthenticatedLayout from '../components/layout/AuthenticatedLayout'
 import DashboardOverview from '../components/dashboard/DashboardOverview'
@@ -10,6 +10,7 @@ import Card from '../components/ui/Card'
 import CreateEventForm, { type CreateEventData } from '../components/events/CreateEventForm'
 import { useSelectedHouseholdStorage } from '../hooks/useSelectedHouseholdStorage'
 import { useHouseholdByIdQuery } from '../hooks/useHouseholdByIdQuery'
+import { useCreateCleaningEventMutation } from '../hooks/useCreateCleaningEventMutation'
 
 type LocalEvent = {
   id: string
@@ -36,11 +37,16 @@ function formatMembershipRole(role?: string) {
 }
 
 const Events: React.FC = () => {
+  const location = useLocation()
   const navigate = useNavigate()
   const { user, logout } = useAuth()
   const { value: selectedHouseholdFromStorage, setValue: setSelectedHouseholdInStorage } = useSelectedHouseholdStorage()
-  const [isCreateFormOpen, setIsCreateFormOpen] = useState(false)
+  const shouldOpenCreateFromRoute = useMemo(() => {
+    return new URLSearchParams(location.search).get('create') === '1'
+  }, [location.search])
+  const [isCreateFormOpen, setIsCreateFormOpen] = useState(shouldOpenCreateFromRoute)
   const [localEvents, setLocalEvents] = useState<LocalEvent[]>([])
+  const createCleaningEventMutation = useCreateCleaningEventMutation()
   const [toast, setToast] = useState<ToastState>({
     open: false,
     title: '',
@@ -88,13 +94,41 @@ const Events: React.FC = () => {
     setIsCreateFormOpen(true)
   }
 
+  useEffect(() => {
+    if (!shouldOpenCreateFromRoute) return
+
+    setIsCreateFormOpen(true)
+    navigate('/events', { replace: true })
+  }, [navigate, shouldOpenCreateFromRoute])
+
   const handleSelectHousehold = (householdId: string) => {
     if (!householdId || householdId === selectedHouseholdId) return
     setSelectedHouseholdInStorage(householdId)
     navigate(`/households/${householdId}`)
   }
 
-  const handleSubmitEvent = ({ name, eventDate, notificationDate }: CreateEventData) => {
+  const handleSubmitEvent = async ({
+    name,
+    eventDate,
+    notificationDate,
+    memberIds,
+    roomIds,
+    distributionMode,
+    recurrenceRule,
+    notifyParticipants,
+  }: CreateEventData): Promise<void> => {
+    if (!selectedHouseholdId) {
+      throw new Error('No household selected.')
+    }
+
+    if (memberIds.length === 0) {
+      throw new Error('Select at least one participant before creating the event.')
+    }
+
+    if (roomIds.length === 0) {
+      throw new Error('Select at least one room before creating the event.')
+    }
+
     const nextEvent: LocalEvent = {
       id: `${Date.now()}`,
       name,
@@ -102,19 +136,40 @@ const Events: React.FC = () => {
       notificationDate,
     }
 
-    setLocalEvents((current) => [
-      nextEvent,
-      ...current,
-    ])
+    try {
+      await createCleaningEventMutation.mutateAsync({
+        householdId: selectedHouseholdId,
+        name,
+        eventDate,
+        notificationDate,
+        participantIds: memberIds,
+        roomIds,
+        distributionMode,
+        recurrenceRule,
+        notifyParticipants,
+      })
 
-    setToast({
-      open: true,
-      title: 'Event created',
-      description: 'Cleaning event has been added.',
-      variant: 'success',
-      actionLabel: 'Undo',
-      actionEventId: nextEvent.id,
-    })
+      setLocalEvents((current) => [nextEvent, ...current])
+      setToast({
+        open: true,
+        title: 'Event created',
+        description: 'Cleaning event has been added.',
+        variant: 'success',
+        actionLabel: 'Undo',
+        actionEventId: nextEvent.id,
+      })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to create cleaning event'
+      setToast({
+        open: true,
+        title: 'Unable to create event',
+        description: message,
+        variant: 'error',
+        actionLabel: undefined,
+        actionEventId: undefined,
+      })
+      throw error
+    }
   }
 
   const handleUndoCreate = () => {

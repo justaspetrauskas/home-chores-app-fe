@@ -18,6 +18,7 @@ export function useAuth() {
         email: me.email,
         defaultHousehold: me.defaultHousehold ?? null,
         memberships: me.memberships ?? [],
+        taskAssignments: me.taskAssignments ?? [],
         cleaningEvents: me.cleaningEvents ?? [],
       }
     : null

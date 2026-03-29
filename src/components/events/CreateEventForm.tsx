@@ -16,7 +16,7 @@ export type { CreateEventData }
 type Props = {
   householdMembers: HouseholdMember[]
   householdRooms: HouseholdRoom[]
-  onSubmit: (data: CreateEventData) => void
+  onSubmit: (data: CreateEventData) => Promise<void>
   onCancel: () => void
 }
 
@@ -76,7 +76,6 @@ const CreateEventForm: React.FC<Props> = ({ householdMembers, householdRooms, on
 
         {!wizard.hasResumeDraft && wizard.currentStep === 3 ? (
           <DetailsStep
-            today={wizard.today}
             eventName={wizard.eventName}
             eventDate={wizard.eventDate}
             notificationDate={wizard.notificationDate}
@@ -84,6 +83,7 @@ const CreateEventForm: React.FC<Props> = ({ householdMembers, householdRooms, on
             recurrenceRule={wizard.recurrenceRule}
             showMoreOptions={wizard.showMoreOptions}
             notifyParticipants={wizard.notifyParticipants}
+            isSubmitting={wizard.isSubmitting}
             onEventNameChange={wizard.setEventName}
             onEventDateChange={wizard.setEventDate}
             onNotificationDateChange={wizard.setNotificationDate}

@@ -1,5 +1,4 @@
 import React from 'react'
-import dayjs from 'dayjs'
 import Button from '../../ui/Button'
 import DropdownSelect from '../../ui/DropdownSelect'
 import Input from '../../ui/Input'
@@ -8,7 +7,6 @@ import SingleDayDatePicker from '../../ui/SingleDayDatePicker'
 import type { DistributionMode, RecurrenceRule } from './types'
 
 type Props = {
-  today: string
   eventName: string
   eventDate: string
   notificationDate: string
@@ -16,6 +14,7 @@ type Props = {
   recurrenceRule: RecurrenceRule
   showMoreOptions: boolean
   notifyParticipants: boolean
+  isSubmitting: boolean
   onEventNameChange: (value: string) => void
   onEventDateChange: (value: string) => void
   onNotificationDateChange: (value: string) => void
@@ -27,7 +26,6 @@ type Props = {
 }
 
 const DetailsStep: React.FC<Props> = ({
-  today,
   eventName,
   eventDate,
   notificationDate,
@@ -35,6 +33,7 @@ const DetailsStep: React.FC<Props> = ({
   recurrenceRule,
   showMoreOptions,
   notifyParticipants,
+  isSubmitting,
   onEventNameChange,
   onEventDateChange,
   onNotificationDateChange,
@@ -64,7 +63,6 @@ const DetailsStep: React.FC<Props> = ({
             value={eventDate}
             onChange={onEventDateChange}
             placeholder="Select event date"
-            minDate={dayjs().add(1, 'day').startOf('day').toDate()}
           />
         </div>
         <div>
@@ -74,8 +72,6 @@ const DetailsStep: React.FC<Props> = ({
             value={notificationDate}
             onChange={onNotificationDateChange}
             placeholder="Select notification date"
-            minDate={dayjs().startOf('day').toDate()}
-            maxDate={dayjs(eventDate || today).subtract(1, 'day').endOf('day').toDate()}
           />
         </div>
       </div>
@@ -133,7 +129,9 @@ const DetailsStep: React.FC<Props> = ({
         <Button type="button" variant="secondary" onClick={onBack}>
           Back
         </Button>
-        <Button type="submit">Create Event</Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Creating...' : 'Create Event'}
+        </Button>
       </div>
     </div>
   )
