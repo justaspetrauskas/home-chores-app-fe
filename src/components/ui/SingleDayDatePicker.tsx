@@ -19,13 +19,19 @@ const SingleDayDatePicker: React.FC<SingleDayDatePickerProps> = ({
   minDate,
   maxDate,
 }) => {
-  const minimumDate = useMemo(() => minDate ?? dayjs().add(1, 'day').startOf('day').toDate(), [minDate])
-  const maximumDate = useMemo(() => maxDate ?? dayjs().add(3, 'month').endOf('day').toDate(), [maxDate])
+  const minimumDate = useMemo(() => minDate ?? null, [minDate])
+  const maximumDate = useMemo(() => maxDate ?? null, [maxDate])
   const clampToBounds = (date: dayjs.Dayjs) => {
-    const min = dayjs(minimumDate)
-    const max = dayjs(maximumDate)
-    if (date.isBefore(min, 'day')) return min
-    if (date.isAfter(max, 'day')) return max
+    if (minimumDate) {
+      const min = dayjs(minimumDate)
+      if (date.isBefore(min, 'day')) return min
+    }
+
+    if (maximumDate) {
+      const max = dayjs(maximumDate)
+      if (date.isAfter(max, 'day')) return max
+    }
+
     return date
   }
 
@@ -95,8 +101,8 @@ const SingleDayDatePicker: React.FC<SingleDayDatePickerProps> = ({
       showFooter={false}
       configs={shortcutConfigs}
       placeholder={placeholder}
-      minDate={minimumDate}
-      maxDate={maximumDate}
+      minDate={minimumDate ?? undefined}
+      maxDate={maximumDate ?? undefined}
       inputClassName="w-full rounded-lg border border-stone-300 bg-white pl-3 pr-10 py-2 text-stone-900 placeholder:text-stone-400 transition-colors focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/20 dark:border-stone-600 dark:bg-stone-700 dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:border-amber-500 dark:focus:ring-amber-500/20"
       toggleClassName="absolute right-0 top-0 h-full px-3 flex items-center text-stone-500 hover:text-stone-800 dark:text-stone-300 dark:hover:text-stone-100"
       containerClassName="relative w-full"

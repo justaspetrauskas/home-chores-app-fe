@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { logoutRequest } from '../lib/authApi'
+import { disconnectSocketClient } from '../lib/socketClient'
 import { ME_QUERY_KEY, useMeQuery } from './useMeQuery'
 import type { AuthUser } from '../types/auth'
 import { clearSelectedHouseholdStorage } from './useSelectedHouseholdStorage'
@@ -30,6 +31,7 @@ export function useAuth() {
     } catch {
       // Always clear regardless of backend response
     } finally {
+      disconnectSocketClient()
       clearSelectedHouseholdStorage()
       queryClient.removeQueries({ queryKey: ME_QUERY_KEY })
     }
