@@ -146,14 +146,26 @@ const Households: React.FC = () => {
 
   return (
     <AuthenticatedLayout
-      onPrimaryAction={!isOnNewForm ? () => navigate('/households/new') : undefined}
-      primaryActionLabel={!isOnNewForm ? 'Create Household' : undefined}
       onLogout={handleLogout}
-      showPrimaryAction={!isOnNewForm}
       householdOptions={householdOptions}
       selectedHouseholdId={selectedHouseholdIdForHeader}
       onSelectHousehold={handleSelectHousehold}
       isSwitchingHousehold={false}
+      actionSlot={
+        <div className="mb-4 flex items-center justify-between">
+          <p className="text-sm text-stone-500 dark:text-stone-400">
+            Welcome back{user?.username ? `, ${user.username}` : ''}. Manage your household setup from here.
+          </p>
+          {!isOnNewForm ? (
+            <button
+              onClick={() => navigate('/households/new')}
+              className="inline-flex items-center justify-center rounded-lg bg-amber-500 px-6 py-3 text-sm font-medium text-stone-900 transition-colors hover:bg-amber-400 disabled:opacity-50 dark:bg-amber-500 dark:hover:bg-amber-400"
+            >
+              Create Household
+            </button>
+          ) : null}
+        </div>
+      }
     >
       <ToastMessage
         open={toast.open}
@@ -162,10 +174,6 @@ const Households: React.FC = () => {
         variant={toast.variant}
         onClose={() => setToast((current) => ({ ...current, open: false }))}
       />
-
-      <p className="mb-4 text-sm text-stone-500 dark:text-stone-400">
-        Welcome back{user?.username ? `, ${user.username}` : ''}. Manage your household setup from here.
-      </p>
 
       <DashboardOverview title="Households" description={overviewDescription} />
 

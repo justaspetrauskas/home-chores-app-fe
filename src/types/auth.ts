@@ -50,6 +50,7 @@ export type UserCleaningEvent = {
   title?: string
   name?: string
   eventDate?: string
+  distributionMode?: string
   status?: string
   createdAt?: string
   participants?: string[]

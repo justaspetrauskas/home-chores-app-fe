@@ -333,8 +333,6 @@ const Dashboard: React.FC = () => {
 
   return (
     <AuthenticatedLayout
-      onPrimaryAction={handlePrimaryAction}
-      primaryActionLabel={primaryActionLabel}
       onLogout={handleLogout}
       householdOptions={householdOptions}
       selectedHouseholdId={selectedHouseholdIdForHeader}

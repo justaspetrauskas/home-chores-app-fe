@@ -3,32 +3,26 @@ import DashboardHeader, { type HouseholdSwitcherOption } from '../dashboard/Dash
 
 type AuthenticatedLayoutProps = {
   children: React.ReactNode
-  onPrimaryAction?: () => void
-  primaryActionLabel?: string
   onLogout: () => void
-  showPrimaryAction?: boolean
   householdOptions?: HouseholdSwitcherOption[]
   selectedHouseholdId?: string
   onSelectHousehold?: (householdId: string) => void
   isSwitchingHousehold?: boolean
+  actionSlot?: React.ReactNode
 }
 
 const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({
   children,
-  onPrimaryAction,
-  primaryActionLabel,
   onLogout,
-  showPrimaryAction = true,
   householdOptions,
   selectedHouseholdId,
   onSelectHousehold,
   isSwitchingHousehold = false,
+  actionSlot,
 }) => {
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-stone-900">
       <DashboardHeader
-        onPrimaryAction={showPrimaryAction ? onPrimaryAction : undefined}
-        primaryActionLabel={showPrimaryAction ? primaryActionLabel : undefined}
         onLogout={onLogout}
         householdOptions={householdOptions}
         selectedHouseholdId={selectedHouseholdId}
@@ -37,7 +31,14 @@ const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({
       />
 
       <main className="w-full px-4 py-8 md:px-6 md:py-10">
-        <div className="mx-auto w-full max-w-5xl">{children}</div>
+        <div className="mx-auto w-full max-w-5xl">
+          {actionSlot ? (
+            <div className="mb-6 flex items-center justify-between">
+              <div className="flex-1">{actionSlot}</div>
+            </div>
+          ) : null}
+          {children}
+        </div>
       </main>
     </div>
   )
